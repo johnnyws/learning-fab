@@ -1,0 +1,9 @@
+{% extends "appbuilder/base.html" %}  <!-- always extend from appbuilder/base.html -->
+{% block content %}  <!-- override the "content" block. other areas to override: CSS, js, or base.html -->
+<div class="jumbotron">
+  <div class="container">
+    <h1>{{_("My App on F.A.B.")}}</h1>  <!-- {{_("text to be translated")}}: Babel syntax -->
+    <p>{{_("My first app using F.A.B, bla, bla, bla")}}</p>
+  </div>
+</div>
+{% endblock %}

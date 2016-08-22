@@ -1,8 +1,8 @@
 from flask import render_template, redirect, g
 from flask.ext.appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder.models.sqla.filters import FilterStartsWith, FilterEqualFunction
-from flask.ext.appbuilder import ModelView, BaseView, AppBuilder, expose, has_access, SimpleFormView, MultipleView, MasterDetailView, action
-from flask.ext.appbuilder.charts.views import DirectByChartView
+from flask.ext.appbuilder import ModelView, BaseView, AppBuilder, expose, has_access, SimpleFormView, MultipleView, MasterDetailView, action, CompactCRUDMixin
+from flask.ext.appbuilder.charts.views import DirectByChartView, TimeChartView
 from app import appbuilder, db
 from flask.ext.babel import lazy_gettext as _, gettext
 
@@ -174,9 +174,16 @@ class GroupModelView(ModelView):
 class MultipleViewsExp(MultipleView):
     views = [GroupModelView, ContactModelView]
 
+class ContactTimeChartView(TimeChartView):
+    datamodel = SQLAInterface(Contact)
+    chart_title = 'Grouped Birth contacts'
+    chart_type = 'AreaChart'
+    label_columns = ContactModelView.label_columns
+    group_by_columns = ['birthday']
+
 class GroupMasterView(MasterDetailView):
     datamodel = SQLAInterface(ContactGroup)
-    related_views = [ContactModelView]
+    related_views = [ContactModelView, ContactTimeChartView]
 
 db.create_all()
 # more icon names: http://fontawesome.io/icons/
@@ -184,14 +191,31 @@ appbuilder.add_view(GroupModelView, "List Groups",icon = "fa-folder-open-o",cate
                 category_icon = "fa-envelope")
 appbuilder.add_view(ContactModelView, "List Contacts",icon = "fa-envelope",category = "Contacts")
 appbuilder.add_view(MultipleViewsExp, "Multiple Views", icon="fa-envelope", category="Contacts")
+appbuilder.add_view_no_menu(ContactTimeChartView)
 appbuilder.add_view(GroupMasterView, "Master Detail Views", icon="fa-envelope", category="Contacts")
 
 class EmployeeHistoryView(ModelView):
     datamodel = SQLAInterface(EmployeeHistory)
     list_columns = ['department', 'begin_date', 'end_date']
 
+class EmployeeHistoryInlineView(CompactCRUDMixin, ModelView):
+    datamodel = SQLAInterface(EmployeeHistory)
+    list_columns = ['department', 'begin_date', 'end_date']
+
 def department_query():
     return db.session.query(Department)
+
+class TopEmployeeView(ModelView):
+    datamodel = SQLAInterface(Employee)
+
+    list_columns = ['full_name', 'department', 'employee_number']
+	# TODO there is a bug: the change of history doens't update employee's department
+    edit_form_extra_fields = {'department':  QuerySelectField('Department',
+                                query_factory=department_query,
+                                widget=Select2Widget(extra_classes="readonly"))}
+
+    related_views = [EmployeeHistoryInlineView]
+    show_template = 'appbuilder/general/model/show_cascade.html' # not a tab, but on the same page cascading
 
 class EmployeeView(ModelView):
     datamodel = SQLAInterface(Employee)
@@ -227,6 +251,9 @@ appbuilder.add_view(DepartmentView, "Departments", icon="fa-folder-open-o", cate
 appbuilder.add_view(FunctionView, "Functions", icon="fa-folder-open-o", category="Company")
 appbuilder.add_view(BenefitView, "Benefits", icon="fa-folder-open-o", category="Company")
 appbuilder.add_view_no_menu(EmployeeHistoryView, "EmployeeHistoryView")
+appbuilder.add_view_no_menu(EmployeeHistoryInlineView, "EmployeeHistoryInlineView")
+appbuilder.add_view(TopEmployeeView, "Top Employees Menu")
+appbuilder.add_link("google", href="https://www.google.com", icon = "fa-google-plus")
 
 """
 	Chart Views

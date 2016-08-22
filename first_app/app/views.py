@@ -31,7 +31,7 @@ from .models import ContactGroup, Contact, CountryStats, Employee, Department, F
 """
 
 """
-	Basic Views
+    Basic Views
 """
 class MyView(BaseView):
     # route_base can be inferred?
@@ -95,7 +95,7 @@ class BS3TextFieldROWidget(BS3TextFieldWidget):
         return super(BS3TextFieldROWidget, self).__call__(field, **kwargs)
 
 """
-	Model Views
+    Model Views
 """
 class ContactModelView(ModelView):
     datamodel = SQLAInterface(Contact)
@@ -113,7 +113,7 @@ class ContactModelView(ModelView):
 
     label_columns = {'contact_group':'Contacts Group'}  # define lables of columns
 
-	# use {add,edit,list,show}_columns properties to customize what columns are displayed and orders
+    # use {add,edit,list,show}_columns properties to customize what columns are displayed and orders
     list_columns = ['name','personal_celphone','birthday','contact_group']
 
     # add an extra field: e.g. confirmation field
@@ -135,8 +135,8 @@ class ContactModelView(ModelView):
         ('Personal Info',{'fields':['birthday','personal_phone','personal_celphone'],'expanded':False}),
         ]
 
-	# use search_columns to control which columns are searchable
-	# use list_widget to control the view
+    # use search_columns to control which columns are searchable
+    # use list_widget to control the view
 
 def get_user():
     return g.user
@@ -150,7 +150,7 @@ class GroupModelView(ModelView):
     datamodel = SQLAInterface(ContactGroup)
     related_views = [ContactModelView]  # create a master/detail view on the show and edit
 
-	# action will be shown in both list & show: can be used to implement request approval / rejection
+    # action will be shown in both list & show: can be used to implement request approval / rejection
     @action("myaction","Do something on this record","Do you really want to?","fa-rocket")
     def myaction(self, item):
         """
@@ -209,7 +209,7 @@ class TopEmployeeView(ModelView):
     datamodel = SQLAInterface(Employee)
 
     list_columns = ['full_name', 'department', 'employee_number']
-	# TODO there is a bug: the change of history doens't update employee's department
+    # TODO there is a bug: the change of history doens't update employee's department
     edit_form_extra_fields = {'department':  QuerySelectField('Department',
                                 query_factory=department_query,
                                 widget=Select2Widget(extra_classes="readonly"))}
@@ -221,7 +221,7 @@ class EmployeeView(ModelView):
     datamodel = SQLAInterface(Employee)
 
     list_columns = ['full_name', 'department', 'employee_number']
-	# TODO there is a bug: the change of history doens't update employee's department
+    # TODO there is a bug: the change of history doens't update employee's department
     edit_form_extra_fields = {'department':  QuerySelectField('Department',
                                 query_factory=department_query,
                                 widget=Select2Widget(extra_classes="readonly"))}
@@ -256,7 +256,7 @@ appbuilder.add_view(TopEmployeeView, "Top Employees Menu")
 appbuilder.add_link("google", href="https://www.google.com", icon = "fa-google-plus")
 
 """
-	Chart Views
+    Chart Views
 """
 class CountryDirectChartView(DirectByChartView):
     datamodel = SQLAInterface(CountryStats)
